@@ -17,14 +17,6 @@ namespace BackEndProject.Controllers
             _context = context;
         }
 
-        // GET: Students
-        [Route("list")]
-        [HttpGet]
-        public async Task<IActionResult> Index()
-        {
-            return View(await _context.Student.ToListAsync());
-        }
-
         [HttpGet]
         public IActionResult GetStudents()
         {
