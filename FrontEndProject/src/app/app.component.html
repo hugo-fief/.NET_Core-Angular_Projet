@@ -1,18 +1,20 @@
 <div class="container">
-
   <form [formGroup]="Form" (ngSubmit)="this[EventValue]()">
-
     <h3>CRUD Etudiants</h3>
     <div class="row">
-
       <table class="table" aria-describedby="My Forms">
         <tr>
           <th scope="col">Nom</th>
           <td>
-            <input type="hidden" formControlName="id">
-            <input type="text" formControlName="lastName">
-            <div *ngIf="submitted && Form.controls.lastName.errors" class="text-danger">
-              <div *ngIf="Form.controls.lastName.errors.required">LastName is required</div>
+            <input type="hidden" formControlName="id" />
+            <input type="text" formControlName="lastName" />
+            <div
+              *ngIf="submitted && Form.controls.lastName.errors"
+              class="text-danger"
+            >
+              <div *ngIf="Form.controls.lastName.errors.required">
+                LastName is required
+              </div>
             </div>
           </td>
         </tr>
@@ -20,33 +22,43 @@
         <tr>
           <th scope="col">Prénom</th>
           <td>
-            <input type="text" formControlName="firstMidName">
-            <div *ngIf="submitted && Form.controls.firstMidName.errors" class="text-danger">
-              <div *ngIf="Form.controls.firstMidName.errors.required">FirstMidName is required</div>
+            <input type="text" formControlName="firstMidName" />
+            <div
+              *ngIf="submitted && Form.controls.firstMidName.errors"
+              class="text-danger"
+            >
+              <div *ngIf="Form.controls.firstMidName.errors.required">
+                FirstMidName is required
+              </div>
             </div>
           </td>
         </tr>
         <tr>
           <th scope="col">Date de Naissance</th>
           <td>
-            <input type="text" formControlName="enrollementDate">
-            <div *ngIf="submitted && Form.controls.enrollementDate.errors" class="text-danger">
-              <div *ngIf="Form.controls.enrollementDate.errors.required">EnrollementDate is required</div>
+            <input type="text" formControlName="enrollementDate" />
+            <div
+              *ngIf="submitted && Form.controls.enrollementDate.errors"
+              class="text-danger"
+            >
+              <div *ngIf="Form.controls.enrollementDate.errors.required">
+                EnrollementDate is required
+              </div>
             </div>
           </td>
         </tr>
         <tr>
-
           <td colspan="2">
-            <button type="submit" class="btn btn-primary">{{EventValue}}</button>
+            <button type="submit" class="btn btn-primary">
+              {{ EventValue }}
+            </button>
           </td>
         </tr>
-
       </table>
     </div>
 
     <div class="row">
-      <table class="table table-striped"  aria-describedby="My Students">
+      <table class="table table-striped" aria-describedby="My Students">
         <tr>
           <th scope="col">Id</th>
           <th scope="col">Nom</th>
@@ -57,15 +69,16 @@
         </tr>
 
         <tr *ngFor="let d of data">
-          <td>{{d.id}}</td>
-          <td>{{d.lastName}}</td>
-          <td>{{d.firstMidName}}</td>
-          <td>{{d.enrollementDate}}</td>
+          <td>{{ d.id }}</td>
+          <td>{{ d.lastName }}</td>
+          <td>{{ d.firstMidName }}</td>
+          <td>{{ d.enrollementDate | date: "y-MM-dd" }}</td>
           <td><a (click)="EditData(d)" class="btn btn-warning">Edition</a></td>
-          <td><a (click)="deleteData(d.id)" class="btn btn-danger">Supression</a></td>
+          <td>
+            <a (click)="deleteData(d.id)" class="btn btn-danger">Supression</a>
+          </td>
         </tr>
       </table>
     </div>
   </form>
-
 </div>
