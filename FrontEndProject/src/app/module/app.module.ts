@@ -1,10 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
-import { AppComponent } from './app.component';
+import { AppComponent } from '../app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { CrudService } from './crud.service';
+import { AppRoutingModule } from './app-routing.module';
+import { DatePipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -14,10 +15,11 @@ import { CrudService } from './crud.service';
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    AppRoutingModule
 
   ],
-  providers: [CrudService],
+  providers: [DatePipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

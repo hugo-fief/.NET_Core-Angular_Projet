@@ -6,6 +6,6 @@ namespace BackEndProject.Data
     public class ConfigurationDbContext : DbContext
     {
         public ConfigurationDbContext(DbContextOptions<ConfigurationDbContext> options) : base(options) { }
-        public DbSet<Student> Student { get; set; } 
+        public DbSet<UserDto> Student { get; set; } 
     }
 }

@@ -1,5 +1,5 @@
 <div class="container">
-  <form [formGroup]="Form" (ngSubmit)="this[EventValue]()">
+  <form [formGroup]="usersForm" (ngSubmit)="onSubmit()">
     <h3>CRUD Etudiants</h3>
     <div class="row">
       <table class="table" aria-describedby="My Forms">
@@ -7,50 +7,26 @@
           <th scope="col">Nom</th>
           <td>
             <input type="hidden" formControlName="id" />
-            <input type="text" formControlName="lastName" />
-            <div
-              *ngIf="submitted && Form.controls.lastName.errors"
-              class="text-danger"
-            >
-              <div *ngIf="Form.controls.lastName.errors.required">
-                LastName is required
-              </div>
-            </div>
+            <input type="text" formControlName="surname" />
           </td>
         </tr>
 
         <tr>
           <th scope="col">Prénom</th>
           <td>
-            <input type="text" formControlName="firstMidName" />
-            <div
-              *ngIf="submitted && Form.controls.firstMidName.errors"
-              class="text-danger"
-            >
-              <div *ngIf="Form.controls.firstMidName.errors.required">
-                FirstMidName is required
-              </div>
-            </div>
+            <input type="text" formControlName="givenName" />
           </td>
         </tr>
         <tr>
           <th scope="col">Date de Naissance</th>
           <td>
-            <input type="text" formControlName="enrollementDate" />
-            <div
-              *ngIf="submitted && Form.controls.enrollementDate.errors"
-              class="text-danger"
-            >
-              <div *ngIf="Form.controls.enrollementDate.errors.required">
-                EnrollementDate is required
-              </div>
-            </div>
+            <input type="date" formControlName="date" />
           </td>
         </tr>
         <tr>
           <td colspan="2">
-            <button type="submit" class="btn btn-primary">
-              {{ EventValue }}
+            <button type="submit" class="btn btn-primary" [disabled]="!this.usersForm.valid">
+              {{this.buttonLabel == 'Update' ? 'Editer' : 'Ajouter'}}
             </button>
           </td>
         </tr>
@@ -68,16 +44,22 @@
           <th scope="col">Supression</th>
         </tr>
 
-        <tr *ngFor="let d of data">
-          <td>{{ d.id }}</td>
-          <td>{{ d.lastName }}</td>
-          <td>{{ d.firstMidName }}</td>
-          <td>{{ d.enrollementDate | date: "y-MM-dd" }}</td>
-          <td><a (click)="EditData(d)" class="btn btn-warning">Edition</a></td>
-          <td>
-            <a (click)="deleteData(d.id)" class="btn btn-danger">Supression</a>
-          </td>
-        </tr>
+        <ng-container *ngIf="!(users$ | async)?.length; else userList">
+          <p>Aucun utilisateur trouvé.</p>
+        </ng-container>
+
+        <ng-template #userList>
+          <tr *ngFor="let user of users$ | async; trackBy: userTrackBy">
+            <td>{{ user.id }}</td>
+            <td>{{ user.surname }}</td>
+            <td>{{ user.givenName }}</td>
+            <td>{{ user.date | date: "y-MM-dd" }}</td>
+            <td><a (click)="this.editUser(user)" class="btn btn-warning">Edition</a></td>
+            <td>
+              <a (click)="this.deleteUser(user.id)" class="btn btn-danger">Supression</a>
+            </td>
+          </tr>
+        </ng-template>
       </table>
     </div>
   </form>

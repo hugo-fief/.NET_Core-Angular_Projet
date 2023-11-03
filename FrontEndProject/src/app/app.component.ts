@@ -1,7 +1,12 @@
-import { Component } from '@angular/core';
-import { CrudService } from './crud.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { UserApiService } from './core/api/user.api.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
+import { DatePipe } from '@angular/common';
+import { UserDto } from './core/dto/user.dto';
+import { Observable } from 'rxjs/internal/Observable';
+import { Subject } from 'rxjs/internal/Subject';
+import { takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -9,76 +14,100 @@ import { Title } from '@angular/platform-browser';
   styleUrls: ['./app.component.css']
 })
 
-export class AppComponent {
-  title = 'StudentFontEnd';
+export class AppComponent implements OnInit, OnDestroy {
+  public users$: Observable<UserDto[]> = new Observable<UserDto[]>();
+  private unsubscribe$ = new Subject<void>();
 
-  constructor(private CrudService: CrudService, private titleService: Title) {
+  public title = 'CRUD';
+  public isFormSubmitted = false;
+  public buttonLabel: string = 'Enregistrer';
+  public usersForm: FormGroup = new FormGroup({});
+
+  constructor(
+    private userApiService: UserApiService, 
+    private titleService: Title, 
+    private datePipe: DatePipe
+  ) {
     this.titleService.setTitle('Accueil');
   }
 
-  data: any;
-  Form: FormGroup;
-  submitted = false;
-  EventValue: any = 'Enregistrer';
-
   ngOnInit(): void {
-    this.getdata();
+    this.getAllUsers();
 
-    this.Form = new FormGroup({
+    this.usersForm = new FormGroup({
       id: new FormControl(null),
-      lastName: new FormControl('', [Validators.required]),
-      firstMidName: new FormControl('', [Validators.required]),
-      enrollementDate: new FormControl('', [Validators.required]),
+      surname: new FormControl('', [Validators.required]),
+      givenName: new FormControl('', [Validators.required]),
+      date: new FormControl('', [Validators.required]),
     });
   }
 
-  getdata(): any {
-    this.CrudService.getData().subscribe((data: any[]) => {
-      this.data = data;
+  getAllUsers(): void {
+    this.users$ = this.userApiService.getAllUsers().pipe(takeUntil(this.unsubscribe$));
+  }
+
+  deleteUser(userId: string): void {
+    this.userApiService.deleteUserById(userId).subscribe(() => {
+      this.resetForm();
     });
   }
 
-  deleteData(id: any): any {
-    this.CrudService.deleteData(id).subscribe((data: any[]) => {
-      this.data = data;
-      this.getdata();
-    });
+  userTrackBy(index: number, user: UserDto): string {
+    return user.id;
   }
-  Enregistrer(): any {
-    this.submitted = true;
 
-    if (this.Form.invalid) {
+  public onSubmit(): void {
+    if (this.buttonLabel == 'Update') {
+      this.updateStudent();
+    } else {
+      this.saveStudent();
+    }
+  }
+
+  saveStudent(): void {
+    this.isFormSubmitted = true;
+
+    if (this.usersForm.invalid) {
       return;
     }
-    this.CrudService.postData(this.Form.value).subscribe((data: any[]) => {
-      this.data = data;
-      this.resetFrom();
+
+    this.userApiService.createUser(this.usersForm.value).subscribe(() => {
+      this.resetForm();
     });
   }
-  Update(): any {
-    this.submitted = true;
 
-    if (this.Form.invalid) {
+  updateStudent(): void {
+    this.isFormSubmitted = true;
+
+    if (this.usersForm.invalid) {
       return;
     }
-    this.CrudService.putData(this.Form.value.id, this.Form.value).subscribe((data: any[]) => {
-      this.data = data;
-      this.resetFrom();
+
+    this.userApiService.updateUser(this.usersForm.value.id, this.usersForm.value).subscribe(() => {
+      this.resetForm();
     });
   }
 
-  EditData(Data: any): any {
-    this.Form.controls.id.setValue(Data.id);
-    this.Form.controls.lastName.setValue(Data.lastName);
-    this.Form.controls.firstMidName.setValue(Data.firstMidName);
-    this.Form.controls.enrollementDate.setValue(Data.enrollementDate);
-    this.EventValue = 'Update';
+  editUser(user: UserDto): void {
+    this.usersForm.controls['id'].setValue(user.id);
+    this.usersForm.controls['surname'].setValue(user.surname);
+    this.usersForm.controls['givenName'].setValue(user.givenName);
+
+    let formattedDate = this.datePipe.transform(user.date, 'yyyy-MM-dd');
+    this.usersForm.controls['date'].setValue(formattedDate);
+
+    this.buttonLabel = 'Update';
   }
 
-  resetFrom(): any {
-    this.getdata();
-    this.Form.reset();
-    this.EventValue = 'Enregistrer';
-    this.submitted = false;
+  private resetForm(): void {
+    this.getAllUsers();
+    this.usersForm.reset();
+    this.buttonLabel = 'Enregistrer';
+    this.isFormSubmitted = false;
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }
