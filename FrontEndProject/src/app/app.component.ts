@@ -4,9 +4,9 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { DatePipe } from '@angular/common';
 import { UserDto } from './core/dto/user.dto';
+import { takeUntil, catchError } from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
 import { Subject } from 'rxjs/internal/Subject';
-import { takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -15,13 +15,14 @@ import { takeUntil } from 'rxjs';
 })
 
 export class AppComponent implements OnInit, OnDestroy {
-  public users$: Observable<UserDto[]> = new Observable<UserDto[]>();
   private unsubscribe$ = new Subject<void>();
 
+  public users$: Observable<UserDto[]> = new Observable<UserDto[]>();
+
+  public usersForm: FormGroup;
   public title = 'CRUD';
   public isFormSubmitted = false;
-  public buttonLabel: string = 'Enregistrer';
-  public usersForm: FormGroup = new FormGroup({});
+  public buttonLabel = 'Enregistrer';
 
   constructor(
     private userApiService: UserApiService, 
@@ -29,84 +30,94 @@ export class AppComponent implements OnInit, OnDestroy {
     private datePipe: DatePipe
   ) {
     this.titleService.setTitle('Accueil');
+    this.usersForm = this.createFormGroup();
   }
 
-  ngOnInit(): void {
-    this.getAllUsers();
+  public ngOnInit(): void {
+    this.fetchAllUsers();
+  }
 
-    this.usersForm = new FormGroup({
+  private createFormGroup(): FormGroup {
+    return new FormGroup({
       id: new FormControl(null),
-      surname: new FormControl('', [Validators.required]),
-      givenName: new FormControl('', [Validators.required]),
-      date: new FormControl('', [Validators.required]),
+      surname: new FormControl('', Validators.required),
+      givenName: new FormControl('', Validators.required),
+      date: new FormControl('', Validators.required),
     });
   }
 
-  getAllUsers(): void {
-    this.users$ = this.userApiService.getAllUsers().pipe(takeUntil(this.unsubscribe$));
+  public fetchAllUsers(): void {
+    this.users$ = this.userApiService.getAllUsers().pipe(
+      takeUntil(this.unsubscribe$),
+      catchError(error => {
+        console.error('Error fetching users', error);
+        return [];
+      })
+    );
   }
 
-  deleteUser(userId: string): void {
-    this.userApiService.deleteUserById(userId).subscribe(() => {
-      this.resetForm();
+  public deleteUser(userId: string): void {
+    this.userApiService.deleteUserById(userId).pipe(
+      takeUntil(this.unsubscribe$)
+    ).subscribe({
+      next: () => this.resetForm(),
+      error: (error: string) => console.error('Error deleting user', error)
     });
   }
 
-  userTrackBy(index: number, user: UserDto): string {
+  public userTrackBy(index: number, user: UserDto): string {
     return user.id;
   }
 
   public onSubmit(): void {
-    if (this.buttonLabel == 'Update') {
-      this.updateStudent();
-    } else {
-      this.saveStudent();
-    }
+    this.isFormSubmitted = true;
+    if (this.usersForm.invalid) return;
+
+    const { id, ...formData } = this.usersForm.value;
+
+    console.log('formData', typeof(formData));
+    console.log('id', typeof(id));
+
+    id ? this.updatingUser(id, formData) : this.creatingUser(formData);
   }
 
-  saveStudent(): void {
-    this.isFormSubmitted = true;
-
-    if (this.usersForm.invalid) {
-      return;
-    }
-
-    this.userApiService.createUser(this.usersForm.value).subscribe(() => {
-      this.resetForm();
+  private updatingUser(id: any, formData: any): void {
+    this.userApiService.updateUser(id, formData).pipe(
+      takeUntil(this.unsubscribe$)
+    ).subscribe({
+      next: () => this.resetForm(),
+      error: (error: string) => console.error('Error updating user', error)
     });
   }
 
-  updateStudent(): void {
-    this.isFormSubmitted = true;
-
-    if (this.usersForm.invalid) {
-      return;
-    }
-
-    this.userApiService.updateUser(this.usersForm.value.id, this.usersForm.value).subscribe(() => {
-      this.resetForm();
+  private creatingUser(formData: any): void {
+    this.userApiService.createUser(formData).pipe(
+      takeUntil(this.unsubscribe$)
+    ).subscribe({
+      next: () => this.resetForm(),
+      error: (error: string) => console.error('Error creating user', error)
     });
   }
 
-  editUser(user: UserDto): void {
-    this.usersForm.controls['id'].setValue(user.id);
-    this.usersForm.controls['surname'].setValue(user.surname);
-    this.usersForm.controls['givenName'].setValue(user.givenName);
-
-    let formattedDate = this.datePipe.transform(user.date, 'yyyy-MM-dd');
-    this.usersForm.controls['date'].setValue(formattedDate);
-
+  public editUser(user: UserDto): void {
+    const { id, surname, givenName, date } = user;
+    this.usersForm.setValue({
+      id,
+      surname,
+      givenName,
+      date: this.datePipe.transform(date, 'yyyy-MM-dd')
+    });
     this.buttonLabel = 'Update';
   }
 
   private resetForm(): void {
-    this.getAllUsers();
+    this.fetchAllUsers();
     this.usersForm.reset();
     this.buttonLabel = 'Enregistrer';
     this.isFormSubmitted = false;
   }
 
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
