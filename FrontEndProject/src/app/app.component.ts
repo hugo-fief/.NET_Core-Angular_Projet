@@ -1,17 +1,24 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { UserApiService } from './core/api/user.api.service';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Title } from '@angular/platform-browser';
-import { DatePipe } from '@angular/common';
-import { UserDto } from './core/dto/user.dto';
+import { FormGroup, FormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AsyncPipe, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { takeUntil, catchError } from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
 import { Subject } from 'rxjs/internal/Subject';
+import { HttpClientModule } from '@angular/common/http';
+
+import { SpinnerComponent } from './core/component/spinner.component';
+import { UserApiService } from './core/api/user.api.service';
+import { UserDto } from './core/dto/user.dto';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
+  standalone: true,
+  imports: [
+    SpinnerComponent, NgClass, NgIf, NgFor, DatePipe, AsyncPipe, FormsModule, ReactiveFormsModule, HttpClientModule
+  ],
+  providers: [DatePipe]
 })
 
 export class AppComponent implements OnInit, OnDestroy {
@@ -20,16 +27,10 @@ export class AppComponent implements OnInit, OnDestroy {
   public users$: Observable<UserDto[]> = new Observable<UserDto[]>();
 
   public usersForm: FormGroup;
-  public title = 'CRUD';
   public isFormSubmitted = false;
   public buttonLabel = 'Enregistrer';
 
-  constructor(
-    private userApiService: UserApiService, 
-    private titleService: Title, 
-    private datePipe: DatePipe
-  ) {
-    this.titleService.setTitle('Accueil');
+  constructor(private userApiService: UserApiService, private datePipe: DatePipe) {
     this.usersForm = this.createFormGroup();
   }
 
@@ -75,8 +76,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
     const { id, ...formData } = this.usersForm.value;
 
-    console.log('formData', typeof(formData));
-    console.log('id', typeof(id));
+    console.log('formData', typeof (formData));
+    console.log('id', typeof (id));
 
     id ? this.updatingUser(id, formData) : this.creatingUser(formData);
   }

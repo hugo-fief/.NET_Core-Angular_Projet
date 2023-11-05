@@ -1,0 +1,5 @@
+<div class="spinner-content" [ngClass]="{'spinner-bg': isLoadingSpinnerActive}">
+  <div *ngIf="isLoadingSpinnerActive" class="spinner-border text-primary custom-spinner">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>

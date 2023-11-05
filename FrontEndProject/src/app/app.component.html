@@ -1,10 +1,12 @@
+<app-spinner></app-spinner>
+
 <div class="container py-3">
   <h3>CRUD Étudiants</h3>
   <form [formGroup]="usersForm" (ngSubmit)="onSubmit()" novalidate class="mb-4">
     <div class="form-group">
       <label for="surname">Nom :</label>
       <input type="text" id="surname" formControlName="surname" class="form-control"
-             [ngClass]="{'is-invalid': isFormSubmitted && usersForm.controls['surname'].invalid}">
+        [ngClass]="{'is-invalid': isFormSubmitted && usersForm.controls['surname'].invalid}">
       <div *ngIf="isFormSubmitted && usersForm.controls['surname'].errors" class="invalid-feedback">
         Le nom est requis.
       </div>
@@ -13,7 +15,7 @@
     <div class="form-group">
       <label for="givenName">Prénom :</label>
       <input type="text" id="givenName" formControlName="givenName" class="form-control"
-             [ngClass]="{'is-invalid': isFormSubmitted && usersForm.controls['givenName'].invalid}">
+        [ngClass]="{'is-invalid': isFormSubmitted && usersForm.controls['givenName'].invalid}">
       <div *ngIf="isFormSubmitted && usersForm.controls['givenName'].errors" class="invalid-feedback">
         Le prénom est requis.
       </div>
@@ -22,7 +24,7 @@
     <div class="form-group">
       <label for="date">Date de Naissance :</label>
       <input type="date" id="date" formControlName="date" class="form-control"
-             [ngClass]="{'is-invalid': isFormSubmitted && usersForm.controls['date'].invalid}">
+        [ngClass]="{'is-invalid': isFormSubmitted && usersForm.controls['date'].invalid}">
       <div *ngIf="isFormSubmitted && usersForm.controls['date'].errors" class="invalid-feedback">
         La date de naissance est requise.
       </div>

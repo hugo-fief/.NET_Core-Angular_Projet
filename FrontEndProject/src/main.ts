@@ -1,7 +1,26 @@
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { importProvidersFrom } from "@angular/core"
+import { DatePipe } from "@angular/common"
+import { provideRouter, Routes } from "@angular/router"
+import { withInterceptorsFromDi, provideHttpClient, HttpClientModule } from "@angular/common/http"
+import { FormsModule, ReactiveFormsModule } from "@angular/forms"
+import { bootstrapApplication } from "@angular/platform-browser"
 
-import { AppModule } from './app/app.module';
+import { AppComponent } from "./app/app.component"
 
+const routes: Routes = [
+  {
+    path: "",
+    title: "Page d'accueil",
+    providers: [DatePipe],
+    loadComponent: () =>
+      import("./app/app.component").then((module) => module.AppComponent),
+  },
+]
 
-platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideHttpClient(withInterceptorsFromDi()),
+    importProvidersFrom(FormsModule, ReactiveFormsModule, HttpClientModule),
+    provideRouter(routes)
+  ],
+}).catch((err) => console.error(err))
