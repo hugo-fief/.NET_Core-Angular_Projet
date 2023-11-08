@@ -1,40 +1,59 @@
 using BackEndProject.Data;
-using Microsoft.AspNetCore.Hosting;
+using BackEndProject.Profiles;
+using BackEndProject.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
+using Microsoft.OpenApi.Models;
 
-namespace BackEndProject
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+
+builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(typeof(UserProfile));
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddDbContext<UserContext>(options =>
 {
-    public class Program
+    options.UseSqlServer(builder.Configuration.GetConnectionString("FullStackConnectionString"));
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigin", policy =>
     {
-        public static void Main(string[] args)
+        policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Ma Première API",
+        Contact = new OpenApiContact
         {
-            var host = CreateHostBuilder(args).Build();
-
-            using (var scope = host.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                try
-                {
-                    services.GetRequiredService<ConfigurationDbContext>();
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred while seeding the database.");
-                }
-            }
-
-            host.Run();
+            Name = "John Doe"
         }
+    });
+});
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
+WebApplication app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ma Première API"));
 }
+
+app.UseHttpsRedirection();
+app.UseCors("AllowOrigin");
+app.UseAuthorization();
+app.MapControllers();
+app.Run();

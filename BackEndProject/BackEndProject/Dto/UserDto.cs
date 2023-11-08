@@ -1,11 +1,9 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 
-namespace BackEndProject.Models
+namespace BackEndProject.Dto
 {
     public class UserDto
     {
-        [Key]
         public int? Id { get; set; }
         public string Surname { get; set; }
         public string GivenName { get; set; }
