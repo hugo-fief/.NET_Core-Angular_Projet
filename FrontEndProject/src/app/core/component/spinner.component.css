@@ -11,8 +11,12 @@
   transform: translate(-50%, -50%);
 }
 
-.spinner-bg {
+.starting-spinner {
   background-color: #0000001f;
+}
+
+.ending-spinner {
+  z-index: -1;
 }
 
 .custom-spinner {

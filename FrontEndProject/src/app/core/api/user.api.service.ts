@@ -21,15 +21,15 @@ export class UserApiService {
     return this.httpClient.get<UserDto[]>(`${BaseApiUrl.apiUrl}`);
   }
 
-  public createUser(userToCreate: UserDto): Observable<UserDto> {
-    return this.httpClient.post<UserDto>(`${BaseApiUrl.apiUrl}`, userToCreate);
+  public createUser(userToCreate: UserDto): Observable<void> {
+    return this.httpClient.post<void>(`${BaseApiUrl.apiUrl}`, userToCreate);
   }
 
-  public updateUser(userId: string, userToUpdate: any): Observable<void> {
+  public updateUser(userId: number, userToUpdate: UserDto): Observable<void> {
     return this.httpClient.put<void>(`${BaseApiUrl.apiUrl}/${userId}`, userToUpdate);
   }
 
-  public deleteUserById(userId: string): Observable<void> {
+  public deleteUserById(userId: number): Observable<void> {
     return this.httpClient.delete<void>(`${BaseApiUrl.apiUrl}/${userId}`);
   }
 }

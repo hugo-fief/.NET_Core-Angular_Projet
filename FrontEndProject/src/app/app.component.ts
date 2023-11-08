@@ -57,7 +57,7 @@ export class AppComponent implements OnInit, OnDestroy {
     );
   }
 
-  public deleteUser(userId: string): void {
+  public deleteUser(userId: number): void {
     this.userApiService.deleteUserById(userId).pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe({
@@ -66,7 +66,7 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  public userTrackBy(index: number, user: UserDto): string {
+  public userTrackBy(index: number, user: UserDto): number {
     return user.id;
   }
 
@@ -75,14 +75,11 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.usersForm.invalid) return;
 
     const { id, ...formData } = this.usersForm.value;
-
-    console.log('formData', typeof (formData));
-    console.log('id', typeof (id));
-
+    
     id ? this.updatingUser(id, formData) : this.creatingUser(formData);
   }
 
-  private updatingUser(id: any, formData: any): void {
+  private updatingUser(id: number, formData: UserDto): void {
     this.userApiService.updateUser(id, formData).pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe({
@@ -91,7 +88,7 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  private creatingUser(formData: any): void {
+  private creatingUser(formData: UserDto): void {
     this.userApiService.createUser(formData).pipe(
       takeUntil(this.unsubscribe$)
     ).subscribe({

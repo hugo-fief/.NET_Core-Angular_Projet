@@ -42,7 +42,8 @@ namespace BackEndProject.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult<UserDto>> Create(UserDto user)
         {
             if (!ModelState.IsValid)
@@ -51,12 +52,18 @@ namespace BackEndProject.Controllers
             }
 
             UserDto userCreated = await _userService.Create(user);
-            return CreatedAtRoute("GetUserById", new { userId = userCreated.Id }, userCreated);
+
+            if (userCreated == null)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
         }
 
         [HttpPut("{userId}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Update(int userId, UserDto user)
         {
             if (!ModelState.IsValid)
@@ -71,7 +78,7 @@ namespace BackEndProject.Controllers
                 return NotFound();
             }
 
-            return Ok(userUpdated);
+            return NoContent();
         }
 
         [HttpDelete("{userId}")]
@@ -80,10 +87,12 @@ namespace BackEndProject.Controllers
         public async Task<IActionResult> Delete(int userId)
         {
             bool successfullyDeleted = await _userService.Delete(userId);
+
             if (!successfullyDeleted)
             {
                 return NotFound();
             }
+
             return NoContent();
         }
     }

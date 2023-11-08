@@ -88,6 +88,7 @@ namespace BackEndProject.Services
                     return null;
                 }
 
+                user.Id = userId;
                 _mapper.Map(user, updatedUser);
                 _context.Entry(updatedUser).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
