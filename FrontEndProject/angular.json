@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "NewFrontEndProject": {
+    "FrontEndProject": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -60,10 +60,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "NewFrontEndProject:build:production"
+              "browserTarget": "FrontEndProject:build:production"
             },
             "development": {
-              "browserTarget": "NewFrontEndProject:build:development"
+              "browserTarget": "FrontEndProject:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -71,7 +71,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "NewFrontEndProject:build"
+            "browserTarget": "FrontEndProject:build"
           }
         },
         "test": {
